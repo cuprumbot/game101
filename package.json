@@ -1,0 +1,23 @@
+{
+  "name": "game101",
+  "version": "1.0.0",
+  "description": "Simple browser game using an Arduino 101 as controller.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "browser",
+    "arduino",
+    "serialport",
+    "accelerometer",
+    "canvas"
+  ],
+  "author": "Luis Jimenez (@cuprumbot)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "serialport": "^3.1.2",
+    "socket.io": "^1.4.6"
+  }
+}

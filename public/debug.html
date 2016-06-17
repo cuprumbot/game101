@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Server test</title>
+		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	</head>
+  	<body>
+  		<center>
+			<canvas id="canvas" width="600" height="600" style="background: #000;"></canvas>
+		</center>
+
+		<script>
+			function arrayBufferToString(buffer) {
+  				return String.fromCharCode.apply(null, new Uint8Array(buffer));
+			}
+
+			/* posiciones de la mira */
+			var sightX = 300;
+			var sightY = 300;
+			var shooting = false;
+
+			/* imagen, posiciones y tamanos de los enemigos */
+			var skulli = new Image();
+			skulli.src = 'skulli.png'; /* http://opengameart.org/content/skulli-sprite-sheets */
+			var explosion = new Image();
+			explosion.src = 'explosion.png'; /* http://opengameart.org/content/pixel-explosion-12-frames */
+			var crosshair = new Image();
+			crosshair.src = 'crosshair.png'; /* http://opengameart.org/content/tank-planet-texture-pack */
+
+			var enemies = [];
+			for (i = 0; i < 10; i++) {
+				enemies.push(	
+								{	
+									"x":Math.floor((Math.random() * 500) + 50),
+									"y":Math.floor((Math.random() * 500) + 50),
+									"w":(50 + i*10),
+									"h":(50 + i*10)	
+								}
+							);
+			}
+
+			/* inicializar canvas */
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+
+			/* dibujar */
+    		function draw () {
+    			ctx.fillStyle="#000000";
+    			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    			for (i = 0; i < enemies.length; i++) {
+    				ctx.drawImage(skulli, enemies[i].x, enemies[i].y, enemies[i].h, enemies[i].w);
+    			}
+
+    			if (shooting) {
+    				ctx.drawImage(explosion, sightX-25, sightY-25, 50, 50);
+    				check();
+    			} else {
+    				ctx.drawImage(crosshair, sightX-25, sightY-25, 50, 50);
+    			}
+			};
+
+			/* detectar disparos */
+			function check () {
+				for (i = 0; i < enemies.length; i++) {
+					item = enemies[i];
+
+					if (sightX > item.x && sightX < item.x+item.w &&
+						sightY > item.y && sightY < item.y+item.h) {
+						enemies.splice(i,1);
+						break;
+					}
+
+				};
+			}
+
+			/* recepcion de mensajes */
+			var socket = io();
+			socket.on('canvasmsg', function(msg){
+    			str = arrayBufferToString(msg);
+    			arr = str.split(",");
+
+    			sightX = 300 + arr[0] * 500;
+    			sightY = 300 + arr[1] * 500;
+    			
+    			if (sightX < 0) sightX = 0;
+    			if (sightX > 600) sightX = 600;
+    			if (sightY < 0) sightY = 0;
+    			if (sightY > 600) sightY = 600;
+
+    			shooting = (arr[3] == 0);
+
+    			draw();
+    		});
+		</script>
+	</body>
+</html>
